@@ -67,10 +67,6 @@ app.post('/api/iniciar-pago', (req, res) => {
     res.json({ idPreferencia: idPreferenciaSimulado });
 });
 
-// Importamos las librerías necesarias
-const app = express();
-app.use(express.json()); // Permite a nuestro código entender formato JSON
-
 // Esta es la ruta secreta a la que Mercado Pago llamará cuando alguien pague
 app.post('/webhook', async (req, res) => {
     try {
