@@ -1,0 +1,27 @@
+{
+  "dependencies": {
+    "body-parser": "^2.2.2",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "mercadopago": "^3.0.0",
+    "mysql2": "^3.22.4",
+    "qrcode-terminal": "^0.12.0",
+    "whatsapp-web.js": "^1.34.7"
+  },
+  "name": "barberia-software",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+  "start": "node server.js"
+},
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "id": "T-1780013503087",
+    "nombre": "Fernando",
+    "telefono": "3412149126",
+    "fecha": "2026-05-29",
+    "hora": "12:00",
+    "servicio": "Corte Sencillo - Seña: $1500",
+    "estado_pago": "Pagado (Seña)",
+    "fecha_registro": "2026-05-29T00:11:43.087Z"
+  },
+  {
+    "id": "T-1780015426446",
+    "nombre": "Fernando",
+    "telefono": "0111523560",
+    "fecha": "2026-05-29",
+    "hora": "13:00",
+    "servicio": "Corte Sencillo - Seña: $1500",
+    "estado_pago": "Pagado (Seña)",
+    "fecha_registro": "2026-05-29T00:43:46.446Z"
+  }
+]

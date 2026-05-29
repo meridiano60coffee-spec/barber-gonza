@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Barber Gonza 23</title>
+    <style>
+        body { font-family: 'Arial', sans-serif; background-color: #0d0d0d; color: #fff; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: 20px auto; padding: 20px; background: #141414; border-radius: 12px; box-shadow: 0 0 15px rgba(255,255,255,0.05); }
+        h1, h2 { color: #ffb703; text-align: center; }
+        input[type="date"] { width: 100%; padding: 12px; margin: 15px 0; border-radius: 6px; border: 1px solid #333; background: #1f1f1f; color: #fff; font-size: 16px; box-sizing: border-box; }
+        .turno-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; margin: 8px 0; background: #1f1f1f; border-left: 5px solid #00ffcc; border-radius: 4px; }
+        .turno-row.ocupado { border-left-color: #ff0055; background: #26191c; }
+        .btn-action { padding: 8px 12px; font-weight: bold; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-bloquear { background: #ff0055; color: #fff; }
+        .btn-liberar { background: #00ffcc; color: #000; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Panel de Control 💈</h1>
+        <p style="text-align: center; color: #aaa;">Gestioná tu agenda en tiempo real</p>
+        
+        <label for="fechaAdmin">Seleccionar Día para visualizar:</label>
+        <input type="date" id="fechaAdmin">
+
+        <h2>Agenda del Día</h2>
+        <div id="listaAgenda">
+            <p style="text-align: center; color: #666;">Selecciona una fecha para ver los turnos...</p>
+        </div>
+    </div>
+
+    <script>
+        const inputFecha = document.getElementById('fechaAdmin');
+        const listaAgenda = document.getElementById('listaAgenda');
+
+        // Poner la fecha de hoy por defecto
+        const hoy = new Date().toISOString().split('T')[0];
+        inputFecha.value = hoy;
+
+        // Cargar agenda cuando cambie la fecha
+        inputFecha.addEventListener('change', cargarAgenda);
+        
+        async function cargarAgenda() {
+            const fecha = inputFecha.value;
+            if (!fecha) return;
+
+            const respuesta = await fetch(`http://localhost:3000/api/agenda-barbero?fecha=${fecha}`);
+            const agenda = await respuesta.json();
+
+            listaAgenda.innerHTML = ""; // Limpiar vista
+
+            agenda.forEach(slot => {
+                const row = document.createElement('div');
+                row.className = `turno-row ${slot.ocupado ? 'ocupado' : ''}`;
+                
+                row.innerHTML = `
+                    <div>
+                        <strong>${slot.hora} hs</strong> - 
+                        <span style="color: ${slot.ocupado ? '#ff4d6d' : '#00ffcc'}">${slot.detalle}</span>
+                    </div>
+                `;
+
+                const btn = document.createElement('button');
+                btn.className = 'btn-action';
+
+                if (slot.ocupado) {
+                    btn.textContent = "Liberar / Cancelar";
+                    btn.className += " btn-liberar";
+                    btn.onclick = () => modificarTurno('cancelar', slot.hora);
+                } else {
+                    btn.textContent = "Bloquear Horario";
+                    btn.className += " btn-bloquear";
+                    btn.onclick = () => modificarTurno('bloquear', slot.hora);
+                }
+
+                row.appendChild(btn);
+                listaAgenda.appendChild(row);
+            });
+        }
+
+        async function modificarTurno(accion, hora) {
+            const fecha = inputFecha.value;
+            
+            if (accion === 'bloquear') {
+                await fetch('http://localhost:3000/api/reservar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nombre: "🚫 BLOQUEADO (Trámite)", fecha, hora, servicio: "Bloqueo" })
+                });
+            } else {
+                await fetch('http://localhost:3000/api/cancelar-turno', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fecha, hora })
+                });
+            }
+            cargarAgenda(); // Recargar los cambios en pantalla
+        }
+
+        // Ejecutar por primera vez al abrir
+        cargarAgenda();
+    </script>
+</body>
+</html>

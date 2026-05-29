@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barber Gonza 23 - Turnos</title>
+    <style>
+        body { font-family: 'Arial', sans-serif; background-color: #0d0d0d; color: #fff; text-align: center; margin: 0; padding: 0; }
+        .container { max-width: 450px; margin: 40px auto; padding: 30px; background: #141414; border-radius: 15px; box-shadow: 0px 0px 20px rgba(255, 183, 3, 0.1); }
+        
+        /* ESTILO PARA EL LOGO DE LA MARCA */
+        .logo { width: 100px; height: 100px; border-radius: 50%; border: 2px solid #ffb703; margin-bottom: 10px; object-fit: cover; box-shadow: 0 0 10px rgba(255, 183, 3, 0.3); }
+
+        input, select { width: 100%; padding: 14px; margin: 12px 0; border-radius: 8px; border: 1px solid #333; box-sizing: border-box; background-color: #1f1f1f; color: #fff; font-size: 16px; }
+        label { display: block; text-align: left; margin-top: 10px; color: #ffb703; font-size: 14px; font-weight: bold; }
+        
+        .neon-box { position: relative; width: 100%; height: 55px; margin-top: 25px; overflow: hidden; border-radius: 8px; }
+        .neon-box::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(45deg, #ff0055, #ffb703, #00ffcc, #ff0055); background-size: 400% 400%; animation: wave-rotate 4s linear infinite; }
+        .neon-btn { position: absolute; inset: 3px; background: #141414; color: #ffb703; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; text-transform: uppercase; cursor: pointer; z-index: 2; display: flex; align-items: center; justify-content: center; width: calc(100% - 6px); }
+        @keyframes wave-rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* PANTALLA ADAPTADA DE PAGOS (TIPO MERCADO PAGO) */
+        .mp-screen { display: none; background: #fff; color: #333; border-radius: 12px; padding: 25px; text-align: left; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .mp-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #e6e6e6; padding-bottom: 15px; margin-bottom: 15px; }
+        .mp-logo { font-weight: bold; font-style: italic; color: #009ee3; font-size: 20px; }
+        .mp-monto { font-size: 22px; font-weight: bold; color: #111; }
+        
+        /* BOTONES DE MÉTODOS DE PAGO */
+        .metodos-nav { display: flex; gap: 8px; margin-bottom: 15px; }
+        .btn-metodo { flex: 1; padding: 10px 5px; font-size: 12px; font-weight: bold; border: 1px solid #ccc; background: #f4f4f4; border-radius: 6px; cursor: pointer; text-align: center; color: #555; }
+        .btn-metodo.active { background: #009ee3; color: #fff; border-color: #0081bc; }
+        
+        .metodo-bloque { display: none; background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #eee; margin-top: 10px; }
+        .metodo-bloque.active { display: block; }
+
+        .datos-transferencia { font-size: 14px; line-height: 1.6; color: #444; }
+        .datos-transferencia strong { color: #009ee3; }
+
+        .qr-simulado { display: block; width: 140px; height: 140px; margin: 10px auto; background: #333; border: 4px solid #fff; box-shadow: 0 0 5px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; text-align: center; font-weight: bold; }
+
+        .mp-btn { width: 100%; background: #00b15e; color: #fff; font-size: 16px; font-weight: bold; border: none; padding: 14px; border-radius: 6px; cursor: pointer; margin-top: 15px; text-transform: uppercase; }
+        .mp-btn:hover { background: #008f4c; }
+
+        /* TICKET FINAL */
+        .ticket { display: none; background: #1f1f1f; border: 2px dashed #ffb703; border-radius: 10px; padding: 20px; text-align: left; }
+        .ticket-row { display: flex; justify-content: space-between; margin: 10px 0; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <img src="logo.jpeg" alt="Logo Barber Gonza 23" class="logo" onerror="this.src='https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=150';">
+        <h2>Barber Gonza 23 💈</h2>
+        
+        <form id="formReserva">
+            <label for="nombre">Nombre Completo</label>
+            <input type="text" id="nombre" placeholder="Ej: Fernando Pérez" required>
+            
+            <label for="telefono">WhatsApp (Con código de área, sin 0 ni 15)</label>
+            <input type="tel" id="telefono" placeholder="Ej: 3412345678" minlength="10" maxlength="10" pattern="[0-9]{10}" required>
+            <small id="errorTelefono" style="color: #ff0055; display: none; text-align: left; font-size: 12px; margin-top: -5px; margin-bottom: 10px; font-weight: bold;">⚠️ El número debe tener exactamente 10 números (Ej: 3416123456).</small>
+            
+            <label for="servicio">Servicio</label>
+            <select id="servicio" required>
+                <option value="Corte Sencillo - Seña: $1500">Corte - Seña: $1.500</option>
+                <option value="Corte y Barba - Seña: $2500">Corte y Barba - Seña: $2.500</option>
+            </select>
+
+            <label for="fecha">Fecha</label>
+            <input type="date" id="fecha" required>
+            
+            <label for="hora">Horario</label>
+            <select id="hora" required disabled>
+                <option value="">Selecciona una fecha</option>
+            </select>
+
+            <div class="neon-box">
+                <button type="submit" class="neon-btn">Elegir método de pago</button>
+            </div>
+        </form>
+
+        <div id="pantallaMP" class="mp-screen">
+            <div class="mp-header">
+                <span class="mp-logo">pago seña</span>
+                <div class="mp-monto" id="mpMonto">Monto: $1.500</div>
+            </div>
+            
+            <p style="margin: 0 0 10px 0; font-size: 13px; color: #666; font-weight: bold;">Selecciona cómo deseas pagar:</p>
+            
+            <div class="metodos-nav">
+                <div class="btn-metodo active" onclick="cambiarMetodo('transferencia')">💸 Transferencia</div>
+                <div class="btn-metodo" onclick="cambiarMetodo('qr')">📱 Escanear QR</div>
+                <div class="btn-metodo" onclick="cambiarMetodo('tarjeta')">💳 Tarjeta</div>
+            </div>
+
+            <div id="bloque-transferencia" class="metodo-bloque active">
+                <div class="datos-transferencia">
+                    <p style="margin:0 0 12px 0; font-weight: bold;">Transferí el monto de la seña a la barbería:</p>
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span><strong>Alias:</strong> <span id="textoAlias">gonza.barber.23.mp</span></span>
+                        <button type="button" onclick="copiarTexto('textoAlias', this)" style="background: #009ee3; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">📋 Copiar</button>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span><strong>CVU:</strong> <span id="textoCvu">0000003100012345678901</span></span>
+                        <button type="button" onclick="copiarTexto('textoCvu', this)" style="background: #009ee3; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">📋 Copiar</button>
+                    </div>
+                    
+                    <strong>Banco:</strong> Mercado Pago<br>
+                    <strong>Titular:</strong> Gonzalo Rodríguez
+                    <p style="margin:12px 0 0 0; font-size:11px; color:#888;">⚠️ Realizá la transferencia desde tu app bancaria y luego presioná el botón verde de abajo.</p>
+                </div>
+            </div>
+
+            <div id="bloque-qr" class="metodo-bloque">
+                <p style="margin:0; font-size: 13px; text-align: center;">Escaneá este QR con Mercado Pago o cualquier billetera virtual:</p>
+                <div class="qr-simulado">
+                    [ CÓDIGO QR<br>MERCADO PAGO ]
+                </div>
+                <p style="margin:0; font-size:11px; color:#888; text-align: center;">Soporta MODO, Ualá, Cuenta DNI, BNA+, etc.</p>
+            </div>
+
+            <div id="bloque-tarjeta" class="metodo-bloque">
+                <label style="color:#555; margin-top: 0;" for="mpTarjeta">Número de Tarjeta de Prueba</label>
+                <input style="background:#f4f4f4; color:#333; border:1px solid #ccc; padding: 8px; margin: 5px 0;" type="text" id="mpTarjeta" value="4517 4899 2311 4556" disabled>
+                <label style="color:#555;" for="mpNombre">Nombre en la tarjeta</label>
+                <input style="background:#fff; color:#333; border:1px solid #ccc; padding: 8px; margin: 5px 0;" type="text" id="mpNombre" placeholder="Ej: Juan Pérez">
+            </div>
+            
+            <button type="button" id="btnPagarMP" class="mp-btn">Confirmar Pago de Seña</button>
+            <p style="font-size: 11px; text-align: center; color: #999; margin-top: 8px; margin-bottom: 0;">🔒 Simulación de entorno seguro regional</p>
+        </div>
+
+        <div id="comprobante" class="ticket">
+            <h3 style="color: #00ffcc; text-align: center; margin: 0 0 15px 0;">¡Turno Pagado y Confirmado! 🎉</h3>
+            <div class="ticket-row"><span>Cliente:</span> <strong id="tCliente"></strong></div>
+            <div class="ticket-row"><span>Servicio:</span> <strong id="tServicio"></strong></div>
+            <div class="ticket-row"><span>Fecha:</span> <strong id="tFecha"></strong></div>
+            <div class="ticket-row"><span>Horario:</span> <strong id="tHora" style="color: #ffb703;"></strong></div>
+            <div class="ticket-row"><span>Estado Seña:</span> <span style="color: #00ffcc; font-weight: bold;">Recibida con Éxito ✅</span></div>
+            <p style="font-size: 12px; color: #aaa; text-align: center; margin-top: 15px;">Te enviamos un comprobante detallado a tu WhatsApp automáticamente.</p>
+            
+            <button type="button" id="btnVolver" style="width: 100%; background: #ffb703; color: #000; font-size: 14px; font-weight: bold; border: none; padding: 12px; border-radius: 6px; cursor: pointer; margin-top: 15px; text-transform: uppercase;">Nuevo Turno / Volver</button>
+        </div>
+    </div>
+
+    <script>
+        const listaHorariosBase = [
+            "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30",
+            "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30",
+            "17:00", "17:30", "18:00", "18:30", "19:00", "19:30", "20:00"
+        ];
+        
+        // MEJORA C: Validación en tiempo real del teléfono
+        const inputTelefono = document.getElementById('telefono');
+        const errorTelefono = document.getElementById('errorTelefono');
+
+        inputTelefono.addEventListener('input', () => {
+            // 1. Limpieza total: Reemplaza cualquier cosa que NO sea un número del 0 al 9 por nada ""
+            inputTelefono.value = inputTelefono.value.replace(/\D/g, '');
+
+            // 2. Validación visual: Si tiene menos de 10 números y no está vacío, muestra la advertencia
+            if (inputTelefono.value.length < 10 && inputTelefono.value.length > 0) {
+                errorTelefono.style.display = 'block';
+                inputTelefono.style.borderColor = '#ff0055'; // Borde rojo de error
+            } else {
+                errorTelefono.style.display = 'none';
+                inputTelefono.style.borderColor = '#333'; // Vuelve al borde normal
+            }
+        });
+
+        const inputFecha = document.getElementById('fecha');
+        const selectHora = document.getElementById('hora');
+        const formReserva = document.getElementById('formReserva');
+        const pantallaMP = document.getElementById('pantallaMP');
+        const comprobante = document.getElementById('comprobante');
+        const btnPagarMP = document.getElementById('btnPagarMP');
+        const mpMonto = document.getElementById('mpMonto');
+
+        let datosTemporalesTurno = {};
+
+        inputFecha.min = new Date().toISOString().split('T')[0];
+
+        inputFecha.addEventListener('change', async () => {
+            const fecha = inputFecha.value;
+            if (!fecha) return;
+            const res = await fetch(`http://localhost:3000/api/turnos-ocupados?fecha=${fecha}`);
+            const ocupados = await res.json();
+            selectHora.innerHTML = '<option value="">Selecciona una hora</option>';
+            selectHora.disabled = false;
+            listaHorariosBase.forEach(h => {
+                if (!ocupados.includes(h)) {
+                    const opt = document.createElement('option');
+                    opt.value = h; opt.textContent = `${h} hs`;
+                    selectHora.appendChild(opt);
+                }
+            });
+        });
+
+        function cambiarMetodo(metodo) {
+            document.querySelectorAll('.btn-metodo').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.metodo-bloque').forEach(b => b.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(`bloque-${metodo}`).classList.add('active');
+        }
+
+        formReserva.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const servicioSeleccionado = document.getElementById('servicio').value;
+            const esCaro = servicioSeleccionado.includes("Barba");
+            mpMonto.textContent = esCaro ? "Monto Seña: $2.500" : "Monto Seña: $1.500";
+
+            datosTemporalesTurno = {
+                nombre: document.getElementById('nombre').value,
+                telefono: document.getElementById('telefono').value,
+                servicio: servicioSeleccionado,
+                fecha: inputFecha.value,
+                hora: selectHora.value
+            };
+
+            const res = await fetch('http://localhost:3000/api/iniciar-pago', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fecha: datosTemporalesTurno.fecha, hora: datosTemporalesTurno.hora })
+            });
+
+            if (res.ok) {
+                formReserva.style.display = 'none';
+                pantallaMP.style.display = 'block';
+            } else {
+                const err = await res.json();
+                alert(err.error);
+            }
+        });
+
+        btnPagarMP.addEventListener('click', async () => {
+            btnPagarMP.textContent = "Verificando transacción... por favor espere";
+            btnPagarMP.disabled = true;
+
+            setTimeout(async () => {
+                const res = await fetch('http://localhost:3000/api/confirmar-pago-exitoso', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(datosTemporalesTurno)
+                });
+
+                if (res.ok) {
+                    pantallaMP.style.display = 'none';
+                    document.getElementById('tCliente').textContent = datosTemporalesTurno.nombre;
+                    document.getElementById('tServicio').textContent = datosTemporalesTurno.servicio;
+                    document.getElementById('tFecha').textContent = datosTemporalesTurno.fecha;
+                    document.getElementById('tHora').textContent = `${datosTemporalesTurno.hora} hs`;
+                    comprobante.style.display = 'block';
+                } else {
+                    alert("Error al confirmar el registro.");
+                    btnPagarMP.textContent = "Confirmar Pago de Seña";
+                    btnPagarMP.disabled = false;
+                }
+            }, 2000);
+        }); // <-- ¡AQUÍ ESTABA EL ERROR! Ya cerramos correctamente la función del botón pagar.
+
+        // Lógica para el botón Volver / Nuevo Turno
+        document.getElementById('btnVolver').addEventListener('click', () => {
+            formReserva.reset();
+            selectHora.innerHTML = '<option value="">Selecciona una fecha</option>';
+            selectHora.disabled = true;
+            comprobante.style.display = 'none'; 
+            formReserva.style.display = 'block'; 
+        });
+
+        // Función para copiar texto al portapapeles
+        function copiarTexto(idElemento, boton) {
+            const textoACopiar = document.getElementById(idElemento).textContent;
+            navigator.clipboard.writeText(textoACopiar).then(() => {
+                const textoOriginal = boton.textContent;
+                boton.textContent = "✅ ¡Copiado!";
+                boton.style.background = "#00b15e"; 
+                
+                setTimeout(() => {
+                    boton.textContent = textoOriginal;
+                    boton.style.background = "#009ee3"; 
+                }, 2000);
+            }).catch(err => {
+                console.error("No se pudo copiar el texto: ", err);
+            });
+        }
+    </script>
+</body>
+</html>
