@@ -73,6 +73,8 @@ app.post('/api/confirmar-pago-exitoso', async (req, res) => {
     }
 });
 
-// ESTA ES LA ÚNICA LÍNEA DE ESCUCHA
+// Usamos el puerto que Render nos da, o 3000 por defecto
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => { console.log(`Servidor en ejecución en puerto ${PORT}`); });
+app.listen(PORT, '0.0.0.0', () => { 
+    console.log(`Servidor en ejecución en puerto ${PORT}`); 
+});
