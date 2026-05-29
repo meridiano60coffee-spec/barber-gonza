@@ -68,7 +68,6 @@ app.post('/api/iniciar-pago', (req, res) => {
 });
 
 // Importamos las librerías necesarias
-const express = require('express');
 const app = express();
 app.use(express.json()); // Permite a nuestro código entender formato JSON
 
